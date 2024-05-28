@@ -42,11 +42,11 @@ class DetectionVisualizerNode(Node):
 
         self._image_pub = self.create_publisher(Image, '~/dbg_images', output_image_qos)
 
-        self._image_sub = message_filters.Subscriber(self, Image, '~/images')
-        self._detections_sub = message_filters.Subscriber(self, Detection2DArray, '~/detections')
+        self._image_sub = message_filters.Subscriber(self, Image, '/camera/color/image_raw')
+        self._detections_sub = message_filters.Subscriber(self, Detection2DArray, '/detections')
 
         self._synchronizer = message_filters.ApproximateTimeSynchronizer(
-            (self._image_sub, self._detections_sub), 5, 0.01)
+            (self._image_sub, self._detections_sub), 10, 5.01)
         self._synchronizer.registerCallback(self.on_detections)
 
     def on_detections(self, image_msg, detections_msg):
@@ -65,8 +65,8 @@ class DetectionVisualizerNode(Node):
                 print("Failed to find class with highest score", file=sys.stderr)
                 return
 
-            cx = detection.bbox.center.position.x
-            cy = detection.bbox.center.position.y
+            cx = detection.bbox.center.x
+            cy = detection.bbox.center.y
             sx = detection.bbox.size_x
             sy = detection.bbox.size_y
 
